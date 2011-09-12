@@ -90,7 +90,7 @@ function akv3_pinboard_process_tag($tag) {
 				continue;
 			}
 			$post_id = wp_insert_post(array(
-				'post_status' => (in_array('draft', explode(' ', $bookmark['tag'])) ? 'draft' : 'publish'),
+				'post_status' => 'draft',
 				'post_author' => 1,
 				'post_category' => array(AKV3_LINK_CAT),
 				'post_title' => strip_tags($bookmark['description']),
@@ -102,6 +102,9 @@ function akv3_pinboard_process_tag($tag) {
 			update_post_meta($post_id, '_format_link_url', $bookmark['href']);
 // set tags, as post meta for now
 			update_post_meta($post_id, '_pinboard_tags', $bookmark['tag']);
+			if (!in_array('draft', explode(' ', $bookmark['tag']))) {
+				wp_publish_post($post_id);
+			}
 		}
 	}
 	date_default_timezone_set($tz);
