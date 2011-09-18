@@ -80,6 +80,7 @@ function akv3_pinboard_process_tag($tag) {
 					'post_author' => 1,
 					'post_category' => array(AKV3_LINK_CAT),
 					'post_title' => strip_tags($bookmark['description']),
+					'post_name' => sanitize_title(strip_tags($bookmark['description'])),
 					'post_content' => $bookmark['extended'],
 					'post_date' => date('Y-m-d H:i:s', $bookmark_time),
 					'guid' => $guid, // this is being ignored, why?
@@ -94,6 +95,7 @@ function akv3_pinboard_process_tag($tag) {
 				'post_author' => 1,
 				'post_category' => array(AKV3_LINK_CAT),
 				'post_title' => strip_tags($bookmark['description']),
+				'post_name' => sanitize_title(strip_tags($bookmark['description'])),
 				'post_content' => $bookmark['extended'],
 				'post_date' => date('Y-m-d H:i:s', $bookmark_time),
 				'guid' => $guid,
