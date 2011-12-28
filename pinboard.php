@@ -30,6 +30,15 @@ function akv3_pinboard_guid($hash) {
 	return 'http://pinboard-'.$hash;
 }
 
+function akv3_pinboard_markdown($content) {
+// stolen from Mark Jaquith's excellent Markdown on Save plugin
+// http://wordpress.org/extend/plugins/markdown-on-save/
+	if (function_exists('Markdown')) {
+		$content = preg_replace("#<p>(.*?)</p>(\n|$)#", '$1$2', Markdown($content));
+	}
+	return $content;
+}
+
 function akv3_pinboard_process_tag($tag) {
 	set_time_limit(0);
 	$tz = date_default_timezone_get();
@@ -73,6 +82,9 @@ function akv3_pinboard_process_tag($tag) {
 			if ($bookmark_time < $time_window) {
 				continue;
 			}
+			if (in_array('md', explode(' ', $bookmark['tag']))) {
+				$bookmark['extended'] = akv3_pinboard_markdown($bookmark['extended']);
+			}
 			if (AKV3_PINBOARD_DRYRUN) {
 				echo '<pre>';
 				print_r(array(
@@ -83,7 +95,7 @@ function akv3_pinboard_process_tag($tag) {
 					'post_name' => sanitize_title(strip_tags($bookmark['description'])),
 					'post_content' => $bookmark['extended'],
 					'post_date' => date('Y-m-d H:i:s', $bookmark_time),
-					'guid' => $guid, // this is being ignored, why?
+					'guid' => $guid,
 					'url' => $bookmark['href'],
 					'pinboard_tags' => $bookmark['tag'],
 				));
@@ -105,7 +117,10 @@ function akv3_pinboard_process_tag($tag) {
 // set tags, as post meta for now
 			update_post_meta($post_id, '_pinboard_tags', $bookmark['tag']);
 			if (!in_array('draft', explode(' ', $bookmark['tag']))) {
-				wp_publish_post($post_id);
+				wp_update_post(array(
+					'ID' => $post_id,
+					'post_status' => 'publish',
+				));
 			}
 		}
 	}
