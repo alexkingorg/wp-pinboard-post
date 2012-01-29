@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: alexking.org Pinboard Posting
-Version: 1.0
+Version: 1.1
 Description: Create posts from Pinboard bookmarks.
 */
 
@@ -9,6 +9,7 @@ Description: Create posts from Pinboard bookmarks.
 @define('AKV3_PINBOARD_DRYRUN', false);
 @define('AKV3_PINBOARD_USERNAME', 'username');
 @define('AKV3_PINBOARD_PASSWORD', 'password');
+@define('AKV3_PINBOARD_REQUEST_KEY', '1234567890');
 
 function akv3_pinboard_tags() {
 	return array(
@@ -16,7 +17,38 @@ function akv3_pinboard_tags() {
 	);
 }
 
+// END CONFIGURATION
+
+// kick off processing in a new thread
 function akv3_pinboard_cron() {
+	wp_remote_get(
+		home_url('index.php').'?'.http_build_query(array(
+			'ak_action' => 'pinboard_run',
+			'api_key' => AKV3_PINBOARD_REQUEST_KEY
+		)),
+		array(
+			'timeout' => 0.01,
+			'blocking' => false,
+			'sslverify' => apply_filters('https_local_ssl_verify', true),
+		)
+	);
+}
+add_action('social_cron_15', 'akv3_pinboard_cron');
+
+// catch new thread, do processing
+function akv3_pinboard_controller() {
+	if (!empty($_GET['ak_action']) && 
+		$_GET['ak_action'] == 'pinboard_run' &&
+		!empty($_GET['api_key']) &&
+		stripslashes($_GET['api_key']) == AKV3_PINBOARD_REQUEST_KEY) {
+		akv3_pinboard_process();
+		die();
+	}
+}
+add_action('init', 'akv3_pinboard_controller');
+
+// pull down feeds from pinboard
+function akv3_pinboard_process() {
 	$tags = akv3_pinboard_tags();
 	if (is_array($tags) && count($tags)) {
 		foreach ($tags as $tag) {
@@ -24,7 +56,6 @@ function akv3_pinboard_cron() {
 		}
 	}
 }
-add_action('social_cron_15', 'akv3_pinboard_cron');
 
 function akv3_pinboard_guid($hash) {
 	return 'http://pinboard-'.$hash;
@@ -132,5 +163,5 @@ function akv3_pinboard_process_tag($tag) {
 
 // test run
 if ($_GET['ak_action'] == 'pinboard') {
- 	add_action('admin_init', 'akv3_pinboard_cron');
+ 	add_action('admin_init', 'akv3_pinboard_process');
 }
