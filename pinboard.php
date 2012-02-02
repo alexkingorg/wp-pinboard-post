@@ -25,7 +25,7 @@ function akv3_pinboard_cron() {
 		home_url('index.php').'?'.http_build_query(array(
 			'ak_action' => 'pinboard_run',
 			'api_key' => AKV3_PINBOARD_REQUEST_KEY
-		)),
+		), null, '&'),
 		array(
 			'timeout' => 0.01,
 			'blocking' => false,
