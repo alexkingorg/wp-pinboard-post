@@ -162,6 +162,6 @@ function akv3_pinboard_process_tag($tag) {
 }
 
 // test run
-if ($_GET['ak_action'] == 'pinboard') {
+if (isset($_GET['ak_action']) && $_GET['ak_action'] == 'pinboard') {
  	add_action('admin_init', 'akv3_pinboard_process');
 }

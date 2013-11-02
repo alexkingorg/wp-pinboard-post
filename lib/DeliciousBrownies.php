@@ -439,12 +439,14 @@ class DeliciousBrownies
 		$children = array();
 		$i = 0;
 		
-		$xml = simplexml_load_string($xmlstr);
-		foreach($xml->children() as $child) {
-			foreach($child->attributes() as $key=>$val) {
-				$children[$i][$key] = (string)$val;
+		$xml = @simplexml_load_string($xmlstr);
+		if (is_object($xml)) {
+			foreach($xml->children() as $child) {
+				foreach($child->attributes() as $key=>$val) {
+					$children[$i][$key] = (string)$val;
+				}
+				$i++;
 			}
-			$i++;
 		}
 		return($children);
 	}
