@@ -33,11 +33,11 @@ function akv3_pinboard_cron() {
 		)
 	);
 }
-add_action('social_cron_15', 'akv3_pinboard_cron');
+add_action('socialcron15', 'akv3_pinboard_cron');
 
 // catch new thread, do processing
 function akv3_pinboard_controller() {
-	if (!empty($_GET['ak_action']) && 
+	if (!empty($_GET['ak_action']) &&
 		$_GET['ak_action'] == 'pinboard_run' &&
 		!empty($_GET['api_key']) &&
 		stripslashes($_GET['api_key']) == AKV3_PINBOARD_REQUEST_KEY) {
@@ -82,7 +82,7 @@ function akv3_pinboard_process_tag($tag) {
 	$db = new DeliciousBrownies;
 	$db->setUsername(AKV3_PINBOARD_USERNAME);
 	$db->setPassword(AKV3_PINBOARD_PASSWORD);
-	
+
 	$time_window = strtotime('-2 days GMT');
 
 	$items = $db->getRecentPosts($tag, 30);
